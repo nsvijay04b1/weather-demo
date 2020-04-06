@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  nginx-default.conf: |
+    server {
+        listen       80;
+        server_name  _;
+        location / {
+            root   /usr/share/nginx/static;
+            index  index.html index.htm;
+            try_files $uri $uri/ =404;
+        }
+    }
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: nginx-cm
+  selfLink: /api/v1/namespaces/weather/configmaps/nginx-cm

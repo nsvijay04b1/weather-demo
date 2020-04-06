@@ -1,0 +1,45 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-nginx
+  namespace: weather
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-nginx
+  template:
+    metadata:
+      labels:
+        app: weather-nginx
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: weather-nginx
+          image: nginx:latest
+          imagePullPolicy: Always
+          
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d/
+              readOnly: true
+              name: nginx-conf
+            - mountPath: /usr/share/nginx/static/
+              name: nginx-static
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-cm # place ConfigMap `nginx-conf` on /etc/nginx
+          items:
+            - key: nginx-default.conf
+              path: nginx-default.conf
+      - name: nginx-static
+        configMap:
+          name: nginx-static # place ConfigMap `nginx-conf` on /etc/nginx
+          items:
+            - key: static.json
+              path: static.json
