@@ -1,0 +1,5 @@
+Script started on Tue 07 Apr 2020 02:12:20 AM IST
+Connecting to nginx-service (172.23.0.2:80)
+wget: can't open 'static.json': File exists
+
+Script done on Tue 07 Apr 2020 02:12:21 AM IST
