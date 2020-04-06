@@ -1,0 +1,31 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run application container
+      run: docker-compose -f docker-compose.yml up -d --build
+    - name: Run tests  of the webapp
+      run: |
+        echo "check docker services UP?"
+        docker-compose -f docker-compose.yml ps || true
+        echo "webapp integration test with nginx file server "
+        docker exec -it  weather-demo_webapp_1  wget http://nginx-service/static.json  || true
+        echo " webapp service test"
+        docker exec -it  weather-demo_webapp_1  wget http://webapp:5001/weatherforecast
+        docker exec -it  weather-demo_webapp_1  wget http://webapp:5001/weatherforecast/stats
+        docker exec -it  weather-demo_webapp_1  wget http://webapp:5001/weatherforecast/fetch
+    - uses: actions/checkout@master
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: nsvijay04b1/weather-demoapp
+        username: ${{ secrets.dockerUser }}
+        password: ${{ secrets.dockerPassword }}
+        tag_names: true  

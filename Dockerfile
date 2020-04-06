@@ -1,46 +1,29 @@
-# =======================================================
-# Stage 1 - Build/compile app using container
-# =======================================================
+# https://hub.docker.com/_/microsoft-dotnet-core
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build
+WORKDIR /source
 
-ARG IMAGE_BASE=3.1-alpine
-
-# Build image has SDK and tools (Linux)
-FROM mcr.microsoft.com/dotnet/core/sdk:$IMAGE_BASE as build
-WORKDIR /build
-
-# Copy project source files
-COPY TestApi ./TestApi
+# copy csproj and restore as distinct layers
 COPY *.sln .
+COPY TestApi/*.csproj ./TestApi/
+RUN dotnet restore 
 
-# Restore, build & publish
-WORKDIR /build/TestApi
-RUN dotnet restore
-RUN dotnet publish --no-restore --configuration Release
+# copy everything else and build app
+COPY TestApi/. ./TestApi/
+WORKDIR /source/TestApi
+RUN dotnet publish -o /TestApi  --no-restore --configuration Release
 
-# =======================================================
-# Stage 2 - Assemble runtime image from previous stage
-# =======================================================
-
-# Base image is .NET Core runtime only (Linux)
-FROM mcr.microsoft.com/dotnet/core/aspnet:$IMAGE_BASE
-
-# Metadata in Label Schema format (http://label-schema.org)
-LABEL org.label-schema.name    = ".NET Core Demo Web App" \
-      org.label-schema.version = "1.3.0" \
-      org.label-schema.vendor  = "Devops Guy" \
-      org.label-schema.vcs-url = "https://github.com/nsvijay04b1/weather-demo"
-
-# Seems as good a place as any
-WORKDIR /app
-
-# Copy already published binaries (from build stage image)
-COPY --from=build /build/TestApi/bin/Release/netcoreapp3.1/publish/ .
+# final stage/image
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
+WORKDIR /TestApi
+COPY --from=build /TestApi ./
 
 # Expose port 5001 from Kestrel webserver
-EXPOSE 5001
+EXPOSE 5001/tcp
 
 # Tell Kestrel to listen on port 5001 and serve plain HTTP
 ENV ASPNETCORE_URLS http://*:5001
+ENV ASPNETCORE_ENVIRONMENT Development
+ENV NGINX 'http://nginx-service/static.json'
 
-# Run the ASP.NET Core app
-ENTRYPOINT dotnet weather-demo.dll
+ENTRYPOINT ["./TestApi"]
+
