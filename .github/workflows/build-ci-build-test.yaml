@@ -1,6 +1,15 @@
-name: CI
+name: CI - build and test webapp
 
-on: [push]
+on: 
+  push: 
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# Note. Required secrets: dockerPassword, acrPassword & kubeConfig
+
+env:
+  imageName: weather-demoapp
 
 jobs:
   build:
@@ -9,23 +18,34 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Run application container
+    - name: Run Build and start webapp/fileservers containers.
       run: docker-compose -f docker-compose.yml up -d --build
-    - name: Run tests  of the webapp
+    - name: Run tests of the weather webapp
       run: |
         echo "check docker services UP?"
         docker-compose -f docker-compose.yml ps || true
         echo "webapp integration test with nginx file server "
         docker exec -it  weather-demo_webapp_1  wget http://nginx-service/static.json  || true
         echo " webapp service test"
-        docker exec -it  weather-demo_webapp_1  wget http://webapp:5001/weatherforecast
-        docker exec -it  weather-demo_webapp_1  wget http://webapp:5001/weatherforecast/stats
-        docker exec -it  weather-demo_webapp_1  wget http://webapp:5001/weatherforecast/fetch
-    - uses: actions/checkout@master
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+        docker exec -it  weather-demo_webapp_1  wget http://webapp:5001/weatherforecast || true 
+        docker exec -it  weather-demo_webapp_1  wget http://webapp:5001/weatherforecast/stats || true
+        docker exec -it  weather-demo_webapp_1  wget http://webapp:5001/weatherforecast/fetch || true
+
+    - name: Dockerhub Login
+      uses: Azure/docker-login@v1
       with:
-        name: nsvijay04b1/weather-demoapp
         username: ${{ secrets.dockerUser }}
-        password: ${{ secrets.dockerPassword }}
-        tag_names: true  
+        password: ${{ secrets.dockerPassword }} 
+
+    - name: Push to Dockerhub
+      run: docker push  ${{ secrets.dockerUser }}/$imageName
+      
+    - name: ACR Login
+      uses: Azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.acrName }}.azurecr.io
+        username: ${{ secrets.acrName }}
+        password: ${{ secrets.acrPassword }}   
+            
+    - name: Push to ACR
+      run: docker push $acrName.azurecr.io/apps/$imageName
