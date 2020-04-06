@@ -23,7 +23,7 @@ jobs:
     - name: Tag images for github and ACR repos.
       run: | 
         docker tag  $imageName:latest ${{ secrets.dockerUser }}/$imageName
-        docker tag  $imageName:latest  ${{ secrets.acrName }}.azurecr.io/apps/$imageName
+        docker tag  $imageName:latest  ${{ secrets.acrUser }}.azurecr.io/apps/$imageName
     - name: Run tests of the weather webapp
       run: |
         echo "check docker services UP?"
@@ -47,9 +47,9 @@ jobs:
     - name: ACR Login
       uses: Azure/docker-login@v1
       with:
-        login-server: ${{ secrets.acrName }}.azurecr.io
-        username: ${{ secrets.acrName }}
+        login-server: ${{ secrets.acrUser }}.azurecr.io
+        username: ${{ secrets.acrUser }}
         password: ${{ secrets.acrPassword }}   
             
     - name: Push to ACR
-      run: docker push ${{ secrets.acrName}}.azurecr.io/apps/$imageName
+      run: docker push ${{ secrets.acrUser}}.azurecr.io/apps/$imageName
