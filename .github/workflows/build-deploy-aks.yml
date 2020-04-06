@@ -9,12 +9,12 @@ on:
 # Note. Required secrets: dockerPassword, acrPassword & kubeConfig
 
 env:
-  dockerUser: bencuk
-  acrName: bcdemo
-  imageName: dotnet-demoapp
+  dockerUser: nsvijay04b1
+  acrName: nsvijaykumar
+  imageName: weather-demoapp
   # Use Windows container Nanoserver base image
   imageBase: 3.1-alpine
-  host: dotnet-demoapp.kube.benco.io
+  host: weather-demoapp.kube.vijay.io
 
 jobs:
   buildJob:
