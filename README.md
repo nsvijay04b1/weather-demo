@@ -136,17 +136,27 @@ weather-webapp-7d9cfb4779-v9f84 - 0
 
 # GitHub Actions CI/CD 
 
-* A working CI and release GitHub Actions workflow is provided `.github/workflows/build-ci-build-test.yaml`, automated builds are run in GitHub hosted runners
+* A working CI and release GitHub Actions workflow is provided `.github/workflows/build-ci-build-test.yaml`.
+ Automated builds are run in GitHub hosted runners
+ 
+ - docker image is built.
+ - docker-compose servies created and tested
+   docker image is tagged and pushed to repositories.
 
 ### [CI using GitHub Actions](https://github.com/nsvijay04b1/weather-demo/actions)
 
 ![github actions CI ](/images/githubActions-CI.JPG)  
 
 
-* A working CD and release GitHub Actions workflow is provided `.github/workflows/build-cd-deploy-minikube.yml`, automated builds are run in GitHub hosted runners
+* A working CD and release GitHub Actions workflow is provided `.github/workflows/build-cd-deploy-minikube.yaml`.
+automated builds are run in GitHub hosted runners
+
+- minikube cluster is created
+- namespace is created
+- k8s resources deployment, service, configmap, ingress are created
 
 
 ### [CD using GitHub Actions](https://github.com/nsvijay04b1/weather-demo/actions)
 
-![github actions CD ](/images/github-CD.JPG)  
+![github actions CD ](/images/githubActions-CD.JPG)  
 
