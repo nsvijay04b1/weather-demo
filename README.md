@@ -109,7 +109,7 @@ kubectl -n weather create -f ./ingress.yaml
 ingress.networking.k8s.io/weather-webapp-ingress created
 ```
 
-* From browser, access using host given in ingress
+* From browser, access using `host` given in ingress, this `host` should be DNS resolveable from your network.
 
 * http://weather.xxxx.k8s.cloudnative.corp.company.com/weatherforecast
 ```
