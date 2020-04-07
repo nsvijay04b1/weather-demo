@@ -5,7 +5,7 @@ metadata:
   namespace: weather
 spec:
   rules:
-    - host: weather.k8s.cloudnative.corp.company.com
+    - host: weather.k8s.cloudnative.corp.github.com
       http:
         paths:
           - path: /
