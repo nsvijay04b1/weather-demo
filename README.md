@@ -48,21 +48,105 @@ Public Docker image is [available on Dockerhub](https://hub.docker.com/repositor
 Public Docker image is [available on AzureCR]( nsvijaykumar.azurecr.io/apps/weather-demoapp:latest). 
 
 
-Run in a container with:
+# Running  application on  kubernetes
+
+kubernetes manifest files in `kubernetes/manifests`  folder
+
 ```
-docker run -it -d -p 5001:5001 --name weather-demoapp weather-demoapp:latest
+.
+├── deploy-nginx.yaml
+├── deploy-webapp.yaml
+├── ingress.yaml
+├── namespace-webapp.yaml
+├── nginx-conf-configmap.yaml
+├── nginx-static-file.yaml
+├── service-nginx.yaml
+└── service-webapp.yaml
 
 ```
 
-Should you want to build your own container, use the `Dockerfile` found the in the 'docker' directory of the project
+* First create separate namespace called `weather`
+```
+kubectl create -f ./namespace-webapp.yaml
+namespace/weather created
+```
+
+* Create configmaps for nignx  
+1. for nginx config
+2. static files to be served by nginx as file server
+
+```
+kubectl -n weather create -f  ./nginx-conf-configmap.yaml
+configmap/nginx-cm created
+
+
+kubectl -n weather create -f  ./nginx-static-file.yaml
+configmap/nginx-static created
+```
+
+* Create webapp ( with 2 replicas ) and nginx deployments 
+```
+kubectl -n weather create -f  ./deploy-webapp.yaml
+deployment.apps/weather-webapp created
+
+
+kubectl -n weather create -f  ./deploy-nginx.yaml
+deployment.apps/weather-nginx created
+```
+
+*  Create services for webapp and nginx deployments
+```
+kubectl -n weather create -f  ./service-nginx.yaml
+service/nginx-service created
+
+kubectl -n weather create -f  ./service-webapp.yaml
+service/weather-webapp-service created
+```
+
+* Create ingress to access the webapp service from outside of the cluster
+```
+kubectl -n weather create -f ./ingress.yaml
+ingress.networking.k8s.io/weather-webapp-ingress created
+```
+
+* From browser, access using host given in ingress
+
+* http://weather.xxxx.k8s.cloudnative.corp.company.com/weatherforecast
+```
+[{"date":"2020-04-07T23:21:42.9149386+00:00","temperatureC":19,"temperatureF":66,"summary":"Hot"},
+{"date":"2020-04-08T23:21:42.9149778+00:00","temperatureC":-18,"temperatureF":0,"summary":"Balmy"},
+{"date":"2020-04-09T23:21:42.9149789+00:00","temperatureC":50,"temperatureF":121,"summary":"Freezing"},
+{"date":"2020-04-10T23:21:42.9149794+00:00","temperatureC":-16,"temperatureF":4,"summary":"Cool"},
+{"date":"2020-04-11T23:21:42.9149798+00:00","temperatureC":-9,"temperatureF":16,"summary":"Scorching"}]
+
+```
+
+* http://weather.xxxx.k8s.cloudnative.corp.company.com/weatherforecast/stats
+```
+weather-webapp-7d9cfb4779-v9f84 - 0
+
+```
+* http://weather.xxx.k8s.cloudnative.corp.amdocs.com/weatherforecast/fetch
+```
+{
+  "version": "1.1.132",
+  "buildId": "2703"
+}
+```
 
 # GitHub Actions CI/CD 
-A working CI and release GitHub Actions workflow is provided `.github/workflows/build-ci-build-test.yaml`, automated builds are run in GitHub hosted runners
 
-### [GitHub Actions](https://github.com/nsvijay04b1/weather-demo/actions)
+* A working CI and release GitHub Actions workflow is provided `.github/workflows/build-ci-build-test.yaml`, automated builds are run in GitHub hosted runners
 
-![fgithub actions CI ](/images/githubActions-CI.JPG)  
+### [CI using GitHub Actions](https://github.com/nsvijay04b1/weather-demo/actions)
+
+![github actions CI ](/images/githubActions-CI.JPG)  
 
 
+* A working CD and release GitHub Actions workflow is provided `.github/workflows/build-cd-deploy-minikube.yml`, automated builds are run in GitHub hosted runners
 
+
+### [CD using GitHub Actions](https://github.com/nsvijay04b1/weather-demo/actions)
+
+![github actions CD ](/images/github-CD.JPG)  
 
