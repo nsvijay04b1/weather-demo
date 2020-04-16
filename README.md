@@ -41,7 +41,7 @@ Removing network testapi_default
 Web app will listen on the usual Kestrel port of 5001, but this can be changed by setting the `ASPNETCORE_URLS` ENV parameter  in Dockefile.
 
 
-# Docker images  github and AzureCR
+# Docker images  Dcokerhub  and AzureCR
 
 Public Docker image is [available on Dockerhub](https://hub.docker.com/repository/docker/nsvijay04b1/weather-demoapp/).  
 
